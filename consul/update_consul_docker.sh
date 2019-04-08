@@ -3,10 +3,10 @@ env=${1}
 consul_version="1.4.4"
 
 # stopping consul-related containers
-docker ps | grep "consul" | cut -d. -f1 |  awk '{print $1}' | xargs docker stop
+docker ps | grep "consul-" | cut -d. -f1 |  awk '{print $1}' | xargs docker stop
 
 # removing consul-related containers
-docker container ls | grep "consul" | cut -d. -f1 | awk '{print $1}' | xargs docker container rm
+docker container ls -a | grep "consul-" | cut -d. -f1 | awk '{print $1}' | xargs docker container rm
 
 # running reverse consul agent
 docker run -d --net=host --restart=unless-stopped -h `curl -s http://169.254.169.254/latest/meta-data/instance-id` --name consul-agent \
