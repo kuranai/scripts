@@ -1,5 +1,5 @@
 #!/bin/bash
-env="playground"
+read -p "Enter Environment Name: " env
 consul_version="1.4.4"
 
 # stopping consul-related containers
@@ -9,7 +9,9 @@ docker ps | grep "consul-" | cut -d. -f1 |  awk '{print $1}' | xargs docker stop
 docker container ls -a | grep "consul-" | cut -d. -f1 | awk '{print $1}' | xargs docker container rm
 
 # running reverse consul agent
-docker run -d --net=host --restart=unless-stopped -h `curl -s http://169.254.169.254/latest/meta-data/instance-id` --name consul-agent         -v /opt/consul:/consul/data -v /var/run/docker.sock:/var/run/docker.sock         consul:${consul_version} agent -data-dir=/consul/data -client=0.0.0.0 -join consul-1.${env}.doozer.internal -advertise `curl -s http://169.254.169.254/latest/meta-data/local-ipv4`
+docker run -d --net=host --restart=unless-stopped -h `curl -s http://169.254.169.254/latest/meta-data/instance-id` --name consul-agent \ 
+        -v /opt/consul:/consul/data -v /var/run/docker.sock:/var/run/docker.sock \ 
+        consul:${consul_version} agent -data-dir=/consul/data -client=0.0.0.0 -join consul-1.${env}.doozer.internal -advertise `curl -s http://169.254.169.254/latest/meta-data/local-ipv4`
 
 # running service registrator with autoclean (-cleanup) flag to remove dangling services
 docker run -d --net=host --restart=unless-stopped -h INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id` --name consul-registrator \
