@@ -1,4 +1,5 @@
 #!/bin/bash
+wait 5
 read -p "Enter Environment Name: " env
 consul_version="1.4.4"
 
