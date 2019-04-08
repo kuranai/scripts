@@ -1,5 +1,5 @@
 #!/bin/bash
-read -p "Please enter environment name: " env
+env="playground"
 consul_version="1.4.4"
 
 # stopping consul-related containers
