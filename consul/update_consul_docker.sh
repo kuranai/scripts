@@ -1,6 +1,4 @@
 #!/bin/bash
-sleep 5
-read -p "Enter Environment Name: " env
 consul_version="1.4.4"
 
 # stopping consul-related containers
