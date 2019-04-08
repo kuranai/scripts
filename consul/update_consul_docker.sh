@@ -1,5 +1,5 @@
 #!/bin/bash
-env=${1}
+read -p "Please enter environment name: " env
 consul_version="1.4.4"
 
 # stopping consul-related containers
