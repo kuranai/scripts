@@ -16,4 +16,5 @@ rm -r /tmp/consul_update
 systemctl daemon-reload
 systemctl start consul
 systemctl status consul
-consul members
+
+/usr/local/bin/consul members
