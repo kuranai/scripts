@@ -1,3 +1,11 @@
 # Consul Update Scripts
 
-Scripts are selfexplained
+Steps are commented on the scripts
+
+### update consul as a service on ubuntu
+* run: `curl https://raw.githubusercontent.com/ktxcx/scripts/master/consul/update_consul.sh | sudo bash`
+
+### update consul running in a docker environment (aws-linux)
+* run: 
+  `export env=<environment>`<br>
+  `curl https://raw.githubusercontent.com/ktxcx/scripts/master/consul/update_consul_docker.sh | bash`
