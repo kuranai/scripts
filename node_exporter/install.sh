@@ -29,7 +29,13 @@ function fatal {
 }
 
 info "Downloading Node Exporter Version "${node_exporter_version}
-/usr/bin/curl -sLo node_exporter.tar.gz https://github.com/prometheus/node_exporter/releases/download/v${node_exporter_version}/node_exporter-${node_exporter_version}.${platform}-amd64.tar.gz
+if [ ! -f "node_exporter.tar.gz" ]
+    /usr/bin/curl -sLo node_exporter.tar.gz https://github.com/prometheus/node_exporter/releases/download/v${node_exporter_version}/node_exporter-${node_exporter_version}.${platform}-amd64.tar.gz
+else 
+    warning "node_exporter Download File already exists. Try to delete it"
+    rm node_exporter.tar.gz
+    info "Success"
+fi
 
 info "Extracting Node Exporter Version "${node_exporter_version}
 tar xfz node_exporter.tar.gz
