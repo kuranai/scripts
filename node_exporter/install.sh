@@ -6,11 +6,13 @@ os=$( uname )
 
 if [ ${os} == 'Darwin' ]; then
     platform='darwin'
+    esc='\x1B'
 elif [ ${os} == 'Linux' ]; then
-    platform='Linux'
+    platform='linux'
+    esc='\e'
 else
-    echo "   platform not supported" >&2
-        exit 1
+    echo "platform not supported"
+    exit 1
 fi
 
 function info {
@@ -38,5 +40,29 @@ mv node_exporter-${node_exporter_version}.${platform}-amd64 /usr/local/bin/
 info "Cleanup"
 rm node_exporter-${node_exporter_version}.${platform}-amd64.tar.gz*
 rm -r node_exporter-${node_exporter_version}.${platform}-amd64
+
+info "Setting up node_exporter User"
+useradd -rs /bin/false node_exporter
+
+info "Setting up Systemd startup Script"
+cat << EOF > /etc/systemd/system/node_exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+ 
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter
+ 
+[Install]
+WantedBy=multi-user.target
+EOF
+
+info "Enable node_exporter on Startup and start node_exporter"
+systemctl daemon-reload
+systemctl enable node_exporter
+systemclt start node_exporter
 
 info "Done..."
