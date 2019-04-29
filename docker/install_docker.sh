@@ -3,17 +3,20 @@ docker_compose_ver=1.24.0
 
 apt-get remove docker docker-engine docker.io -y
 apt-get install apt-transport-https ca-certificates curl software-properties-common -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
-apt-get update
+
+apt-get update && apt upgrade -y
 apt-get install docker-ce -y
-groupadd docker
-usermod -aG docker ubuntu
+
+groupadd docker && usermod -aG docker ubuntu
+
 systemctl enable docker
-systemctl daemon-reload
+systemctl start docker
+systemctl status docker
 
 apt-get autoremove -y
 
