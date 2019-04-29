@@ -32,7 +32,7 @@ info "stopping node_exporter service"
 systemctl stop node_exporter
 
 info "Downloading Node Exporter Version "${node_exporter_version}
-if [ ! -f "node_exporter.tar.gz" ]
+if [ ! -f "node_exporter.tar.gz" ]; then
     /usr/bin/curl -sLo node_exporter.tar.gz https://github.com/prometheus/node_exporter/releases/download/v${node_exporter_version}/node_exporter-${node_exporter_version}.${platform}-amd64.tar.gz
 else
     warning "node_exporter Download File already exists. Try to delete it"
