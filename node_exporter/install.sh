@@ -35,11 +35,20 @@ info "Extracting Node Exporter Version "${node_exporter_version}
 tar xfz node_exporter.tar.gz
 
 info "Move Node Exporter to /usr/local/bin/"
-mv node_exporter-${node_exporter_version}.${platform}-amd64 /usr/local/bin/
+mv node_exporter-${node_exporter_version}.${platform}-amd64/node_exporter /usr/local/bin/
 
 info "Cleanup"
-rm node_exporter-${node_exporter_version}.${platform}-amd64.tar.gz*
-rm -r node_exporter-${node_exporter_version}.${platform}-amd64
+if [ -f "node_exporter.tar.gz" ]; then
+    rm node_exporter.tar.gz
+else
+    warning "node_exporter.tar.gz doesn't exists. Can't delete file"
+fi 
+
+if [ -d "node_exporter-${node_exporter_version}.${platform}-amd64" ]; then
+    rm -r node_exporter-${node_exporter_version}.${platform}-amd64
+else
+    warning "Directory node_exporter-${node_exporter_version}.${platform}-amd64 doens't exist. Can't delete folder"
+fi 
 
 info "Setting up node_exporter User"
 useradd -rs /bin/false node_exporter
@@ -63,6 +72,6 @@ EOF
 info "Enable node_exporter on Startup and start node_exporter"
 systemctl daemon-reload
 systemctl enable node_exporter
-systemclt start node_exporter
+systemctl start node_exporter
 
 info "Done..."
