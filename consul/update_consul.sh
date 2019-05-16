@@ -5,10 +5,16 @@ consul_version="1.4.4"
 mkdir -p /tmp/consul_update
 cd /tmp/consul_update
 
+# leave consul cluster before upgrade 
+consul leave
+
+# wait 3 secs
+sleep 3
+
 # stop running consul
 systemctl stop consul
 
-# wait 3 secs
+# wait 3 secs again
 sleep 3
 
 # download and unzip consul binary
@@ -20,9 +26,10 @@ cd -
 # cleanup
 rm -r /tmp/consul_update
 
-
+# update systemd daemon
 systemctl daemon-reload
 
+# start consul again and print startup
 systemctl start consul
 systemctl status consul
 
