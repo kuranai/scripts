@@ -6,7 +6,7 @@ mkdir -p /tmp/consul_update
 cd /tmp/consul_update
 
 # leave consul cluster before upgrade 
-consul leave
+/usr/local/bin/consul leave
 
 # wait 3 secs
 sleep 3
