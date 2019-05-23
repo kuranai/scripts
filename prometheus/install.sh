@@ -57,8 +57,8 @@ chown prometheus:prometheus /usr/local/bin/prometheus
 chown prometheus:prometheus /usr/local/bin/promtool
 
 info "Copy the consoles and console_libraries directories to /etc/prometheus"
-cp prometheus-${prometheus_version}.${platform}-amd64/consoles /etc/prometheus/
-cp prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/prometheus/
+cp -r prometheus-${prometheus_version}.${platform}-amd64/consoles /etc/prometheus/
+cp -r prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/prometheus/
 
 info "Set the user and group ownership on the directories to the prometheus user"
 chown -R prometheus:prometheus /etc/prometheus/consoles
