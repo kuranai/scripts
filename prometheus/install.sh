@@ -28,7 +28,7 @@ function fatal {
     exit 2
 }
 
-info "Downloading Node Exporter Version "${prometheus_version}
+info "Downloading Prometheus Version "${prometheus_version}
 if [ ! -f "prometheus.tar.gz" ]; then
     /usr/bin/curl -sLo prometheus.tar.gz https://github.com/prometheus/prometheus/releases/download/v${prometheus_version}/prometheus-${prometheus_version}.${platform}-amd64.tar.gz
 else 
@@ -37,28 +37,28 @@ else
     info "Success"
 fi
 
-info "Extracting Node Exporter Version "${prometheus_version}
+info "Extracting Prometheus Version "${prometheus_version}
 tar xfz prometheus.tar.gz
 
 info "Setting up prometheus User"
 useradd --no-create-home --shell /bin/false prometheus
 
 info "Create prometheus folders"
-mkdir /etc/prometheus
-mkdir /var/lib/prometheus
+mkdir -p /etc/prometheus
+mkdir -p /var/lib/prometheus
 
 chown prometheus:prometheus /etc/prometheus
 chown prometheus:prometheus /var/lib/prometheus
 
-info "Move Node Exporter to /usr/local/bin/"
+info "Move Prometheus to /usr/local/bin/"
 cp prometheus-${prometheus_version}.${platform}-amd64/prometheus /usr/local/bin/
 cp prometheus-${prometheus_version}.${platform}-amd64/promtool /usr/local/bin/
 chown prometheus:prometheus /usr/local/bin/prometheus
 chown prometheus:prometheus /usr/local/bin/promtool
 
 info "Copy the consoles and console_libraries directories to /etc/prometheus"
-cp prometheus-${prometheus_version}.${platform}-amd64/consoles /etc/prometheus
-cp prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/prometheus
+cp prometheus-${prometheus_version}.${platform}-amd64/consoles /etc/prometheus/
+cp prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/prometheus/
 
 info "Set the user and group ownership on the directories to the prometheus user"
 chown -R prometheus:prometheus /etc/prometheus/consoles
