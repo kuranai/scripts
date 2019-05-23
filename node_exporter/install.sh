@@ -1,6 +1,6 @@
 #!/bin/bash
 
-node_exporter_version=0.17.0
+node_exporter_version=0.18.0
 
 os=$( uname )
 
@@ -53,7 +53,7 @@ fi
 if [ -d "node_exporter-${node_exporter_version}.${platform}-amd64" ]; then
     rm -r node_exporter-${node_exporter_version}.${platform}-amd64
 else
-    warning "Directory node_exporter-${node_exporter_version}.${platform}-amd64 doens't exist. Can't delete folder"
+    warning "Directory node_exporter-${node_exporter_version}.${platform}-amd64 doesn't exists. Can't delete folder"
 fi 
 
 info "Setting up node_exporter User"
