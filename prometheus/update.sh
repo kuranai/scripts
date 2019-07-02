@@ -28,6 +28,12 @@ function fatal {
     exit 2
 }
 
+info "stop running prometheus"
+if [ ! -f "/usr/local/bin/prometheus" ]; then
+    systemctl stop prometheus
+fi
+
+
 info "Downloading Prometheus Version "${prometheus_version}
 if [ ! -f "prometheus.tar.gz" ]; then
     /usr/bin/curl -sLo prometheus.tar.gz https://github.com/prometheus/prometheus/releases/download/v${prometheus_version}/prometheus-${prometheus_version}.${platform}-amd64.tar.gz
@@ -39,13 +45,6 @@ fi
 
 info "Extracting Prometheus Version "${prometheus_version}
 tar xfz prometheus.tar.gz
-
-info "Setting up prometheus User"
-useradd --no-create-home --shell /bin/false prometheus
-
-info "Create prometheus folders"
-mkdir -p /etc/prometheus
-mkdir -p /var/lib/prometheus
 
 chown prometheus:prometheus /etc/prometheus
 chown prometheus:prometheus /var/lib/prometheus
@@ -63,41 +62,6 @@ cp -r prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/
 info "Set the user and group ownership on the directories to the prometheus user"
 chown -R prometheus:prometheus /etc/prometheus/consoles
 chown -R prometheus:prometheus /etc/prometheus/console_libraries
-
-info "Create a sample config file"
-cat << EOF > /etc/prometheus/prometheus.yml
-global:
-  scrape_interval: 15s
-
-scrape_configs:
-  - job_name: 'prometheus'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['localhost:9090']
-EOF
-
-chown prometheus:prometheus /etc/prometheus/prometheus.yml
-
-info "Set up prometheus service"
-cat << EOF > /etc/systemd/system/prometheus.service
-[Unit]
-Description=Prometheus
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-User=prometheus
-Group=prometheus
-Type=simple
-ExecStart=/usr/local/bin/prometheus \
-    --config.file /etc/prometheus/prometheus.yml \
-    --storage.tsdb.path /var/lib/prometheus/ \
-    --web.console.templates=/etc/prometheus/consoles \
-    --web.console.libraries=/etc/prometheus/console_libraries
-
-[Install]
-WantedBy=multi-user.target
-EOF
 
 systemctl daemon-reload
 systemctl enable prometheus
