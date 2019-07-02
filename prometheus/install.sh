@@ -1,6 +1,6 @@
 #!/bin/bash
 
-prometheus_version=2.9.2
+prometheus_version=2.10.0
 
 os=$( uname )
 
