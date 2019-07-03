@@ -28,43 +28,53 @@ function fatal {
     exit 2
 }
 
-info "Downloading Prometheus Version "${prometheus_version}
-if [ ! -f "prometheus.tar.gz" ]; then
-    /usr/bin/curl -sLo prometheus.tar.gz https://github.com/prometheus/prometheus/releases/download/v${prometheus_version}/prometheus-${prometheus_version}.${platform}-amd64.tar.gz
-else 
-    warning "prometheus Download File already exists. Try to delete it"
-    rm prometheus.tar.gz
-    info "Success"
-fi
-
-info "Extracting Prometheus Version "${prometheus_version}
-tar xfz prometheus.tar.gz
-
-info "Setting up prometheus User"
-useradd --no-create-home --shell /bin/false prometheus
-
+function common {
 info "Create prometheus folders"
 mkdir -p /etc/prometheus
 mkdir -p /var/lib/prometheus
 
-chown prometheus:prometheus /etc/prometheus
-chown prometheus:prometheus /var/lib/prometheus
-
 info "Move Prometheus to /usr/local/bin/"
 cp prometheus-${prometheus_version}.${platform}-amd64/prometheus /usr/local/bin/
 cp prometheus-${prometheus_version}.${platform}-amd64/promtool /usr/local/bin/
-chown prometheus:prometheus /usr/local/bin/prometheus
-chown prometheus:prometheus /usr/local/bin/promtool
 
 info "Copy the consoles and console_libraries directories to /etc/prometheus"
 cp -r prometheus-${prometheus_version}.${platform}-amd64/consoles /etc/prometheus/
 cp -r prometheus-${prometheus_version}.${platform}-amd64/console_libraries /etc/prometheus/
 
+permissions
+}
+
+function permissions {
 info "Set the user and group ownership on the directories to the prometheus user"
+chown prometheus:prometheus /usr/local/bin/prometheus
+chown prometheus:prometheus /usr/local/bin/promtool
 chown -R prometheus:prometheus /etc/prometheus/consoles
 chown -R prometheus:prometheus /etc/prometheus/console_libraries
+chown prometheus:prometheus /etc/prometheus/prometheus.yml
+chown prometheus:prometheus /etc/prometheus
+chown prometheus:prometheus /var/lib/prometheus
+}
+
+function download {
+    info "Downloading Prometheus Version "${prometheus_version}
+    if [ ! -f "prometheus.tar.gz" ]; then
+        /usr/bin/curl -sLo prometheus.tar.gz https://github.com/prometheus/prometheus/releases/download/v${prometheus_version}/prometheus-${prometheus_version}.${platform}-amd64.tar.gz
+    else 
+        warning "prometheus Download File already exists. Try to delete it"
+        rm prometheus.tar.gz
+        info "Success"
+    fi
+
+    info "Extracting Prometheus Version "${prometheus_version}
+    tar xfz prometheus.tar.gz
+}
+
+function setup {
+info "Setting up prometheus User"
+useradd --no-create-home --shell /bin/false prometheus
 
 info "Create a sample config file"
+if [ ! -f /etc/prometheus/prometheus.yml ];then
 cat << EOF > /etc/prometheus/prometheus.yml
 global:
   scrape_interval: 15s
@@ -75,10 +85,12 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 EOF
-
-chown prometheus:prometheus /etc/prometheus/prometheus.yml
+else
+warning "/etc/prometheus/prometheus.yml - won't touch it"
+fi
 
 info "Set up prometheus service"
+if [ ! -f /etc/systemd/system/prometheus.service ];then
 cat << EOF > /etc/systemd/system/prometheus.service
 [Unit]
 Description=Prometheus
@@ -98,23 +110,57 @@ ExecStart=/usr/local/bin/prometheus \
 [Install]
 WantedBy=multi-user.target
 EOF
+else
+warning "/etc/systemd/system/prometheus.service exists - won't touch it"
+fi
+}
+
+function cleanup {
+    info "Cleanup"
+    if [ -f "prometheus.tar.gz" ]; then
+        rm prometheus.tar.gz
+    else
+        warning "prometheus.tar.gz doesn't exists. Can't delete file"
+    fi 
+
+    if [ -d "prometheus-${prometheus_version}.${platform}-amd64" ]; then
+        rm -r prometheus-${prometheus_version}.${platform}-amd64
+    else
+        warning "Directory prometheus-${prometheus_version}.${platform}-amd64 doesn't exists. Can't delete folder"
+    fi 
+}
+
+
+function update {
+systemctl stop prometheus
+download
+common
 
 systemctl daemon-reload
 systemctl enable prometheus
 systemctl start prometheus
 systemctl status prometheus
+cleanup
+}
 
+function install {
+download
+common
+setup
 
-info "Cleanup"
-if [ -f "prometheus.tar.gz" ]; then
-    rm prometheus.tar.gz
+systemctl daemon-reload
+systemctl enable prometheus
+systemctl start prometheus
+systemctl status prometheus
+cleanup
+}
+
+if [ ! -f /etc/systemd/system/prometheus.service ]; then
+	info "Install prometheus"
+	 cd /tmp
+	install
 else
-    warning "prometheus.tar.gz doesn't exists. Can't delete file"
-fi 
-
-if [ -d "prometheus-${prometheus_version}.${platform}-amd64" ]; then
-    rm -r prometheus-${prometheus_version}.${platform}-amd64
-else
-    warning "Directory prometheus-${prometheus_version}.${platform}-amd64 doesn't exists. Can't delete folder"
-fi 
-
+	info "Update prometheus"
+	cd /tmp
+	update
+fi
