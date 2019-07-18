@@ -17,7 +17,8 @@ apt install docker-ce -y
 
 case $linux_os in
    ubuntu)
-      groupadd docker && usermod -aG docker ubuntu
+      groupadd docker
+      usermod -aG docker ubuntu
       ;;
    *)
       groupadd docker
