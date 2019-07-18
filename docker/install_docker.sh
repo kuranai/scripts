@@ -4,8 +4,8 @@ linux_os=$(cat /etc/issue|cut -d" " -f1|head -1|awk '{print tolower($0)}')
 
 docker_compose_ver=1.24.0
 
-apt remove docker docker-engine docker.io -y
-apt install gnupg apt-transport-https ca-certificates curl software-properties-common -y
+apt-get remove docker docker-engine docker.io -y
+apt-get install gnupg apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://download.docker.com/linux/${linux_os}/gpg | apt-key add -
 add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/${linux_os} \
