@@ -15,15 +15,7 @@ add-apt-repository \
 apt update 
 apt install docker-ce -y
 
-case $linux_os in
-   ubuntu)
-      groupadd docker
-      usermod -aG docker ubuntu
-      ;;
-   *)
-      groupadd docker
-      ;;
-esac
+groupadd docker
 
 systemctl enable docker
 systemctl start docker
